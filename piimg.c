@@ -12,7 +12,6 @@ struct cmd_struct {
 
 static struct cmd_struct commands[] = {
   {"list", cmd_list},
-  {"loopdev", cmd_loopdev}
 };
 
 static void print_usage() {
