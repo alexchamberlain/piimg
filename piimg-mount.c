@@ -8,6 +8,7 @@
 #include "builtin.h"
 #include "command.h"
 #include "partition.h"
+#include "fstr.h"
 
 static void print_usage() {
   const char usage_string[] =
@@ -20,11 +21,19 @@ int cmd_mount(int argc, char* argv[]) {
   char *boot_loop;
   char *root_loop;
   struct piimg_img simg;
-  char *boot_mount_point = NULL;
-  char *root_mount_point = argv[1];
-  int strlen_root_mount_point = strlen(root_mount_point);
-  memset(&simg, 0, sizeof(struct piimg_img));
 
+  FSTR_DECLARE_WRAPPER(mnt_root, argv[1]);
+  FSTR_DECLARE_NULL   (mnt_boot);
+  FSTR_DECLARE_NULL   (mnt_dev);
+  FSTR_DECLARE_NULL   (mnt_proc);
+  FSTR_DECLARE_NULL   (mnt_sys);
+
+  const FSTR_DECLARE_WRAPPER(dir_boot, "/boot");
+  const FSTR_DECLARE_WRAPPER(dir_dev,  "/dev");
+  const FSTR_DECLARE_WRAPPER(dir_proc, "/proc");
+  const FSTR_DECLARE_WRAPPER(dir_sys,  "/sys");
+
+  memset(&simg, 0, sizeof(struct piimg_img));
 
   if(analyse_img(&simg, argv[0])) {
     fprintf(stderr, "Failed to analyse image.\n");
@@ -54,41 +63,69 @@ int cmd_mount(int argc, char* argv[]) {
     goto error;
   }
 
-  printf("Root mount point: %s\n", root_mount_point);
-
-  if(mount(root_loop, root_mount_point, "ext4", 0, NULL) != 0) {
-    fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", root_loop, root_mount_point);
+  if(mount(root_loop, mnt_root.c_str, "ext4", 0, NULL) != 0) {
+    fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", root_loop, mnt_root.c_str);
     goto error;
   }
 
-  boot_mount_point = malloc(strlen_root_mount_point + strlen("/boot") + 1);
-  if(boot_mount_point == NULL) {
-    fprintf(stderr, "Failed to allocate memory for boot mount point.\n");
+  if(fstrcat(&mnt_boot, &mnt_root, &dir_boot)
+    || fstrcat(&mnt_dev,  &mnt_root, &dir_dev)
+    || fstrcat(&mnt_proc, &mnt_root, &dir_proc)
+    || fstrcat(&mnt_sys,  &mnt_root, &dir_sys)) {
+    fprintf(stderr, "Failed to construct mount points.\n");
     goto error;
   }
 
-  strncpy(boot_mount_point, root_mount_point, strlen_root_mount_point);
-  strncpy(boot_mount_point + strlen_root_mount_point, "/boot", strlen("/boot"));
-  *(boot_mount_point + strlen_root_mount_point + strlen("/boot")) = '\0';
+  printf("Mount Points\n");
+  printf("============\n");
+  printf("/    : %s\n", mnt_root.c_str);
+  printf("/boot: %s\n", mnt_boot.c_str);
+  printf("/dev : %s\n", mnt_dev.c_str);
+  printf("/proc: %s\n", mnt_proc.c_str);
+  printf("/sys : %s\n", mnt_sys.c_str);
 
-  printf("Boot mount point: %s\n", boot_mount_point);
+  if(mount(boot_loop, mnt_boot.c_str, "vfat", 0, NULL) != 0) {
+    fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", boot_loop, mnt_boot.c_str);
+    fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
+    goto error;
+  }
 
-  if(mount(boot_loop, boot_mount_point, "vfat", 0, "") != 0) {
-    fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", boot_loop, boot_mount_point);
+  if(mount("/dev", mnt_dev.c_str, NULL, MS_BIND|MS_REC, NULL) != 0) {
+    fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", "/dev", mnt_dev.c_str);
+    fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
+    goto error;
+  }
+
+  if(mount("none", mnt_proc.c_str, "proc", 0, NULL) != 0) {
+    fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", "none", mnt_proc.c_str);
+    fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
+    goto error;
+  }
+
+  if(mount("/sys", mnt_sys.c_str, NULL, MS_BIND|MS_REC, NULL) != 0) {
+    fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", "/sys", mnt_sys.c_str);
     fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
     goto error;
   }
 
   free(boot_loop);
   free(root_loop);
-  free(boot_mount_point);
+
+  fstrfree(&mnt_boot);
+  fstrfree(&mnt_dev);
+  fstrfree(&mnt_proc);
+  fstrfree(&mnt_sys);
 
   return 0;
 
   error:
     free(boot_loop);
     free(root_loop);
-    free(boot_mount_point);
+
+    fstrfree(&mnt_boot);
+    fstrfree(&mnt_dev);
+    fstrfree(&mnt_proc);
+    fstrfree(&mnt_sys);
 
     /* TODO: Should clean up allocated loop devices too. */
 
