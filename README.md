@@ -3,12 +3,22 @@ piimg
 
 A utility for working with disk images, which are designed to be flashed onto a Raspberry Pi.
 
+`piimg` is currently untested beyond my own needs, and so I suggest great caution when using it.
+
 Commands
 --------
 
-The only command at the moment is `list`, and can be run on an image file by running
+There are 2 useful subcommands; `list` and `mount`. `list` can be run on an image file by running
 
     piimg list <img-file>
+
+It performs a functionality similar to `fdisk -l` and will list the partitions on the disk.
+
+`mount` is much more cool. It will mount an image files root partition at a given mount point, then mount in the boot partition too. Furthermore, it also bind mounts `/dev` and `/sys`, whilst creating a `/proc`. (How cool is that!?!) It can be run by
+
+    sudo piimg mount <img-file> <mount-point>
+
+At this stage, you must `umount` manually.
 
 Aim
 ---
