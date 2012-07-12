@@ -2,6 +2,7 @@
 #include <parted/parted.h>
 
 #include "builtin.h"
+#include "loopdev.h"
 #include "command.h"
 
 static int cmd_find_unused(int argc, char* argv[]);

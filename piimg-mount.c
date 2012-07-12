@@ -7,6 +7,7 @@
 
 #include "builtin.h"
 #include "command.h"
+#include "loopdev.h"
 #include "partition.h"
 #include "fstr.h"
 

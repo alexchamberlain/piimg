@@ -12,8 +12,8 @@
 
 #include "loopdev.h"
 
-static const char * LOOPDEV_PREFIX     = "/dev/loop";
-static int          LOOPDEV_PREFIX_LEN = strlen("/dev/loop");
+static const char LOOPDEV_PREFIX[]   = "/dev/loop";
+static int        LOOPDEV_PREFIX_LEN = sizeof(LOOPDEV_PREFIX)/sizeof(LOOPDEV_PREFIX[0])-1;
 
 char * loopdev_find_unused() {
   int control_fd = open("/dev/loop-control", O_RDWR);
