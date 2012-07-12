@@ -21,3 +21,6 @@ piimg: piimg.o piimg-list.o piimg-loopdev.o piimg-mount.o piimg-grow.o command.o
 
 clean:
 	rm *.o piimg
+
+install:
+	cp ./piimg /usr/local/bin
