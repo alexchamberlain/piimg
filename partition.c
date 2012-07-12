@@ -15,7 +15,7 @@ int analyse_img(struct piimg_img * simg, const char * img) {
   if(disk == NULL)
     goto error_device_destroy;
 
-  /* We shall set the first fat16 partition to be /boot and the first ext4 partition to be / */
+  /* We shall set the first fat partition to be /boot and the first ext4 partition to be / */
 
   if(device->type != 5)
     fprintf(stderr, "WARNING: The device being mounted is not an image file.\n");
@@ -47,6 +47,23 @@ int analyse_img(struct piimg_img * simg, const char * img) {
     ped_disk_destroy(disk);
   error_device_destroy:
     ped_device_destroy(device);
+  error:
+    return 1;
+}
+
+int analyse_device(struct piimg_img * simg, const char * img) {
+  PedDevice* device;
+
+  device = ped_device_get(img);
+  if (device == NULL)
+    goto error;
+
+  simg->size = device->length * device->sector_size;
+
+  ped_device_destroy(device);
+
+  return 0;
+
   error:
     return 1;
 }

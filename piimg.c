@@ -8,6 +8,7 @@ static struct cmd_struct commands[] = {
   {"list",    cmd_list},
   {"loopdev", cmd_loopdev},
   {"mount",   cmd_mount},
+  {"grow",    cmd_grow},
 };
 
 static void print_usage() {

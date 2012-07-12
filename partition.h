@@ -7,3 +7,4 @@ struct piimg_img {
 };
 
 int analyse_img(struct piimg_img *, const char *);
+int analyse_device(struct piimg_img *, const char *);
