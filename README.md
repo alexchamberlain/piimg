@@ -8,7 +8,7 @@ A utility for working with disk images, which are designed to be flashed onto a 
 Commands
 --------
 
-There are 2 useful subcommands; `list` and `mount`. `list` can be run on an image file by running
+There are 3 useful subcommands; `list`, `mount` and `umount`. `list` can be run on an image file by running
 
     piimg list <img-file>
 
