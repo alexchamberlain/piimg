@@ -18,7 +18,9 @@ It performs a functionality similar to `fdisk -l` and will list the partitions o
 
     sudo piimg mount <img-file> <mount-point>
 
-At this stage, you must `umount` manually.
+To unmount, run
+
+    sudo piimg umount <mount-point>
 
 Aim
 ---
