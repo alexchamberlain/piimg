@@ -24,9 +24,12 @@ int cmd_list (int argc, char* argv[]) {
     return 1;
   }
 
+  if(escalate()) goto error;
+
   device = ped_device_get (argv[0]);
   if (device == NULL)
     goto error;
+
 
   size = ped_unit_format_byte (device, device->length * device->sector_size);
   if (size == NULL)
@@ -56,6 +59,8 @@ int cmd_list (int argc, char* argv[]) {
   free (size);
   ped_device_destroy(device);
 
+  if(drop()) goto error;
+
   return 0;
 
   error_disk_destroy:
@@ -65,6 +70,7 @@ int cmd_list (int argc, char* argv[]) {
   error_device_destroy:
     ped_device_destroy(device);
   error:
+    if(drop()) goto error;
     return 1;
 }
 
