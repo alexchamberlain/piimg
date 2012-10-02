@@ -21,8 +21,12 @@ int cmd_dd(int argc, char* argv[]) {
   int in_fd;
   int out_fd;
 
+  if(escalate()) goto error;
+
   in_fd  = open(argv[0], O_RDONLY);
   out_fd = open(argv[1], O_WRONLY);
+
+  if(drop()) goto error;
 
   if(in_fd < 0 || out_fd < 0) {
     fprintf(stderr, "Failed to open one of the files.\n");
