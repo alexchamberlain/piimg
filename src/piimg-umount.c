@@ -5,11 +5,8 @@
 
 #include <sys/mount.h>
 
+#include <piimg.h>
 #include "builtin.h"
-#include "command.h"
-#include "loopdev.h"
-#include "partition.h"
-#include "fstr.h"
 
 static void print_usage() {
   const char usage_string[] =
@@ -63,6 +60,8 @@ int cmd_umount(int argc, char* argv[]) {
   printf("/proc: %s\n", mnt_proc.c_str);
   printf("/sys : %s\n", mnt_sys.c_str);
 
+  if(escalate()) goto error;
+
   if(ui_umount(mnt_sys.c_str)
     || ui_umount(mnt_proc.c_str)
     || ui_umount(mnt_boot.c_str)
@@ -70,6 +69,8 @@ int cmd_umount(int argc, char* argv[]) {
     || ui_umount(mnt_root.c_str)) {
     goto error;
   }
+
+  if(drop()) goto error;
 
   fstrfree(&mnt_boot);
   fstrfree(&mnt_dev);

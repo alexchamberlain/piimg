@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 
+#include <piimg.h>
 #include "builtin.h"
-#include "command.h"
-#include "partition.h"
-#include "fstr.h"
 
 static void print_usage() {
   const char usage_string[] =

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <parted/parted.h>
 
+#include <piimg.h>
 #include "builtin.h"
 
 static void print_usage() {

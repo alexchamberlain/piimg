@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <parted/parted.h>
 
+#include <piimg.h>
 #include "builtin.h"
-#include "loopdev.h"
-#include "command.h"
 
 static int cmd_find_unused(int argc, char* argv[]);
 static int cmd_setup_device(int argc, char* argv[]);

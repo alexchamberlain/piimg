@@ -11,18 +11,23 @@
 #include <linux/loop.h>
 
 #include "loopdev.h"
+#include "privileges.h"
 
 static const char LOOPDEV_PREFIX[]   = "/dev/loop";
 static int        LOOPDEV_PREFIX_LEN = sizeof(LOOPDEV_PREFIX)/sizeof(LOOPDEV_PREFIX[0])-1;
 
 char * loopdev_find_unused() {
-  int control_fd = open("/dev/loop-control", O_RDWR);
+  int control_fd = -1;
   int n = -1;
 
-  if(control_fd < 0) {
+  if(escalate()) return NULL;
+
+  if((control_fd = open("/dev/loop-control", O_RDWR)) < 0) {
     fprintf(stderr, "Failed to open /dev/loop-control\n");
     return NULL;
   }
+
+  if(drop()) return NULL;
 
   n = ioctl(control_fd, LOOP_CTL_GET_FREE);
 
@@ -56,10 +61,14 @@ int loopdev_setup_device(const char * file, uint64_t offset, const char * device
     goto error;
   }
 
+  if(escalate()) goto error;
+
   if((device_fd = open(device, O_RDWR)) < 0) {
     fprintf(stderr, "Failed to open device (%s).\n", device);
     goto error;
   }
+
+  if(drop()) goto error;
 
   if(ioctl(device_fd, LOOP_SET_FD, file_fd) < 0) {
     fprintf(stderr, "Failed to set fd.\n");
@@ -71,7 +80,7 @@ int loopdev_setup_device(const char * file, uint64_t offset, const char * device
 
   memset(&info, 0, sizeof(struct loop_info64)); /* Is this necessary? */
   info.lo_offset = offset;
-  /* info.lo_sizelimit = 0 => max avilable */
+  /* info.lo_sizelimit = 0 => max available */
   /* info.lo_encrypt_type = 0 => none */
 
   if(ioctl(device_fd, LOOP_SET_STATUS64, &info)) {

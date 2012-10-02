@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <parted/parted.h>
+#include <unistd.h>
+#include <sys/types.h>
 
+#include <piimg.h>
 #include "builtin.h"
-#include "command.h"
 
 static struct cmd_struct commands[] = {
   {"list",    cmd_list},
@@ -21,6 +23,19 @@ static void print_usage() {
 }
 
 int main(int argc, char * argv[]) {
+
+  // Check that we are running as root.
+  if(geteuid() != 0) {
+    fprintf(stderr, "piimg should be run with the effective user ID of 0.\n");
+    return 1;
+  }
+
+  // Drop priveleges until needed.
+  if(seteuid(getuid()) == -1 || geteuid() != getuid()) {
+    fprintf(stderr, "Failed to drop priveleges.\n");
+    return 1;
+  }
+
   ++argv;
   --argc;
 

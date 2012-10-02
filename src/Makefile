@@ -1,5 +1,6 @@
-LIBS=-lparted
-CFLAGS=-g
+LIBS=../lib/libpiimg.a -lparted
+INC=-I../lib
+CFLAGS=-g $(INC)
 
 all: piimg
 
@@ -12,18 +13,13 @@ piimg-umount.o: piimg-umount.c
 piimg-grow.o: piimg-grow.c
 piimg-dd.o: piimg-dd.c
 
-# Future library
-command.o: command.c
-loopdev.o: loopdev.c
-partition.o: partition.c
-fstr.o: fstr.c
-dd.o: dd.c
-
-piimg: piimg.o piimg-list.o piimg-loopdev.o piimg-mount.o piimg-umount.o piimg-grow.o piimg-dd.o command.o loopdev.o partition.o fstr.o dd.o
+piimg: piimg.o piimg-list.o piimg-loopdev.o piimg-mount.o piimg-umount.o piimg-grow.o piimg-dd.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 clean:
-	rm *.o piimg
+	-rm *.o piimg
 
 install:
-	cp ./piimg /usr/local/bin
+	install -oroot -gusers -m4750 ./piimg /usr/local/bin
+
+# vim: set noexpandtab:

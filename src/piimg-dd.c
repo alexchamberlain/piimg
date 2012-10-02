@@ -7,9 +7,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <piimg.h>
 #include "builtin.h"
-#include "command.h"
-#include "dd.h"
 
 static void print_usage() {
   const char usage_string[] =

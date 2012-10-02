@@ -5,11 +5,8 @@
 
 #include <sys/mount.h>
 
+#include <piimg.h>
 #include "builtin.h"
-#include "command.h"
-#include "loopdev.h"
-#include "partition.h"
-#include "fstr.h"
 
 static void print_usage() {
   const char usage_string[] =
@@ -19,8 +16,8 @@ static void print_usage() {
 }
 
 int cmd_mount(int argc, char* argv[]) {
-  char *boot_loop;
-  char *root_loop;
+  char *boot_loop = NULL;
+  char *root_loop = NULL;
   struct piimg_img simg;
 
   FSTR_DECLARE_WRAPPER(mnt_root, argv[1]);
@@ -64,10 +61,14 @@ int cmd_mount(int argc, char* argv[]) {
     goto error;
   }
 
+  if(escalate()) goto error;
+
   if(mount(root_loop, mnt_root.c_str, "ext4", 0, NULL) != 0) {
     fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", root_loop, mnt_root.c_str);
     goto error;
   }
+
+  if(drop()) goto error;
 
   if(fstrcat(&mnt_boot, &mnt_root, &dir_boot)
     || fstrcat(&mnt_dev,  &mnt_root, &dir_dev)
@@ -84,6 +85,8 @@ int cmd_mount(int argc, char* argv[]) {
   printf("/dev : %s\n", mnt_dev.c_str);
   printf("/proc: %s\n", mnt_proc.c_str);
   printf("/sys : %s\n", mnt_sys.c_str);
+
+  if(escalate()) goto error;
 
   if(mount(boot_loop, mnt_boot.c_str, "vfat", 0, NULL) != 0) {
     fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", boot_loop, mnt_boot.c_str);
@@ -108,6 +111,8 @@ int cmd_mount(int argc, char* argv[]) {
     fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
     goto error;
   }
+
+  if(drop()) goto error;
 
   free(boot_loop);
   free(root_loop);
