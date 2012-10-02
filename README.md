@@ -16,11 +16,14 @@ It performs a functionality similar to `fdisk -l` and will list the partitions o
 
 `mount` is much more cool. It will mount an image files root partition at a given mount point, then mount in the boot partition too. Furthermore, it also bind mounts `/dev` and `/sys`, whilst creating a `/proc`. (How cool is that!?!) It can be run by
 
-    sudo piimg mount <img-file> <mount-point>
+    piimg mount <img-file> <mount-point>
 
 To unmount, run
 
-    sudo piimg umount <mount-point>
+    piimg umount <mount-point>
+
+`piimg` should not be run as `root` and will escalate its privileges as
+necessary.
 
 Aim
 ---
