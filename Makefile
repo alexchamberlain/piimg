@@ -16,6 +16,9 @@ clean-src:
 
 clean: clean-lib clean-src
 
-.PHONY: lib src clean clean-lib clean-src
+install: src
+	make -C src install
+
+.PHONY: lib src clean clean-lib clean-src install
 
 # vim: set noexpandtab:
