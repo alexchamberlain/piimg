@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <unistd.h>
+
 
 int escalate() {
   if(seteuid(0) == -1 || geteuid() != 0) {
