@@ -44,7 +44,7 @@ int cmd_mount(int argc, char* argv[]) {
   }
 
   if(loopdev_setup_device(argv[0], simg.boot_offset, boot_loop)) {
-    fprintf(stderr, "Failed to associate loop device (%s) to file (%s).\n", boot_loop, argv[0], simg.boot_offset);
+    fprintf(stderr, "Failed to associate loop device (%s) to file (%s; offset=%ld).\n", boot_loop, argv[0], simg.boot_offset);
     goto error;
   }
 
@@ -57,7 +57,7 @@ int cmd_mount(int argc, char* argv[]) {
   printf("Boot Loop device: %s\n", boot_loop);
 
   if(loopdev_setup_device(argv[0], simg.root_offset, root_loop)) {
-    fprintf(stderr, "Failed to associate loop device (%s) to file (%s; offset=%lld).\n", root_loop, argv[0], simg.root_offset);
+    fprintf(stderr, "Failed to associate loop device (%s) to file (%s; offset=%ld).\n", root_loop, argv[0], simg.root_offset);
     goto error;
   }
 
@@ -96,6 +96,12 @@ int cmd_mount(int argc, char* argv[]) {
 
   if(mount("/dev", mnt_dev.c_str, NULL, MS_BIND|MS_REC, NULL) != 0) {
     fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", "/dev", mnt_dev.c_str);
+    fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
+    goto error;
+  }
+
+  if(mount(NULL, mnt_dev.c_str, NULL, MS_SLAVE|MS_REC, NULL) != 0) {
+    fprintf(stderr, "Failed to remount (%s) 'rslave'.\n", mnt_dev.c_str);
     fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
     goto error;
   }
