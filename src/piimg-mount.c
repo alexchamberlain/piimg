@@ -100,6 +100,12 @@ int cmd_mount(int argc, char* argv[]) {
     goto error;
   }
 
+  if(mount(NULL, mnt_dev.c_str, NULL, MS_SLAVE|MS_REC, NULL) != 0) {
+    fprintf(stderr, "Failed to remount (%s) 'rslave'.\n", mnt_dev.c_str);
+    fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
+    goto error;
+  }
+
   if(mount("none", mnt_proc.c_str, "proc", 0, NULL) != 0) {
     fprintf(stderr, "Failed to mount loop device (%s) to mount point (%s).\n", "none", mnt_proc.c_str);
     fprintf(stderr, "Error (%d) %s\n", errno, strerror(errno));
