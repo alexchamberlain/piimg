@@ -5,6 +5,16 @@ A utility for working with disk images, which are designed to be flashed onto a 
 
 `piimg` is currently untested beyond my own needs, and so I suggest great caution when using it.
 
+Compiling
+---------
+
+    sudo apt-get update
+    sudo apt-get install -y make build-essential git libparted0-dev
+    git clone https://github.com/alexchamberlain/piimg.git
+    cd piimg
+    make
+    sudo make install
+
 Commands
 --------
 
