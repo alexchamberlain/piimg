@@ -44,7 +44,7 @@ int cmd_mount(int argc, char* argv[]) {
   }
 
   if(loopdev_setup_device(argv[0], simg.boot_offset, boot_loop)) {
-    fprintf(stderr, "Failed to associate loop device (%s) to file (%s).\n", boot_loop, argv[0], simg.boot_offset);
+    fprintf(stderr, "Failed to associate loop device (%s) to file (%s) at offset (%ld).\n", boot_loop, argv[0], simg.boot_offset);
     goto error;
   }
 
@@ -57,7 +57,7 @@ int cmd_mount(int argc, char* argv[]) {
   printf("Boot Loop device: %s\n", boot_loop);
 
   if(loopdev_setup_device(argv[0], simg.root_offset, root_loop)) {
-    fprintf(stderr, "Failed to associate loop device (%s) to file (%s; offset=%lld).\n", root_loop, argv[0], simg.root_offset);
+    fprintf(stderr, "Failed to associate loop device (%s) to file (%s; offset=%ld).\n", root_loop, argv[0], simg.root_offset);
     goto error;
   }
 
