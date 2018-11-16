@@ -1,4 +1,5 @@
 #include "command.h"
+#include <string.h>
 
 int run_argv(struct cmd_struct *cmds, int cmds_n, int argc, char ** argv) {
   const char *cmd = argv[0];
